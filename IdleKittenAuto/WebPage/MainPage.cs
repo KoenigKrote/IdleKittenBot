@@ -65,7 +65,7 @@ namespace IdleKittenAuto.WebPage
         private IWebElement btnImportOk;
 
 
-
+        
         public void MainLoop()
         {
             //FirefoxProfile profile = new FirefoxProfile(@"C:\Users\T\AppData\Roaming\Mozilla\Firefox\Profiles\hpgf1ifm.default");
@@ -83,6 +83,7 @@ namespace IdleKittenAuto.WebPage
             //}
         }
 
+        //Opens options, saves export data string to a text file.
         private void saveData()
         {
             btnOptions.Click();
@@ -95,6 +96,7 @@ namespace IdleKittenAuto.WebPage
             btnOptionsClose.Click();
         }
 
+        //Opens options, imports export data string from text file
         private void loadData()
         {
             SaveData = File.ReadAllText(@".\Save.txt");
@@ -106,7 +108,8 @@ namespace IdleKittenAuto.WebPage
             _driver.SwitchTo().Alert().Accept();
         }
 
-        private void getPageData()
+        //Loads resource data into a list for logic checking
+        private void getResourceData()
         {
             //if(activeTab.Text != "All")
 
@@ -127,17 +130,12 @@ namespace IdleKittenAuto.WebPage
             }
         }
 
-        private void gatherCatNip()
+        //Prototype logic for manually gathering catnip
+        private void gatherCatnip()
         {
             Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").First();
 
-            _builder.MoveToElement(btnBuildCatnipField).Build().Perform();
-            Thread.Sleep(1250);
-            var tipText = toolTip.Text;
-            tipText = tipText.Replace("\r", " ");
-            tipText = tipText.Replace("\n", " ");
 
-            var thing = btnBuildCatnipField.GetAttribute("class");
 
             while (btnBuildCatnipField.GetAttribute("class") == "btn nosel modern")
                 btnBuildCatnipField.Click();
@@ -145,16 +143,31 @@ namespace IdleKittenAuto.WebPage
             if (catnip.PerTick.Positive != true)
             {
                 for (int i = 0; i < 10; i++)
+                {
                     btnGetCatnip.Click();
+                    Thread.Sleep(125); //Short pause to allow the browser to catch up
+                }
             }
         }
 
+        private bool buildCatnipField()
+        {
+            _builder.MoveToElement(btnBuildCatnipField).Build().Perform();
+            var tipText = toolTip.Text;
+            tipText = tipText.Replace("\r", " ");
+            tipText = tipText.Replace("\n", " ");
+
+
+        }
+
+        //Strips non-alpha characters from a given string
         private string StripNonChar(string input)
         {
             input = new string(input.Where(c => char.IsLetter(c)).ToArray());
             return input;
         }
 
+        //Strips non-numerical characters from a given string
         private int StripNonNum(string input)
         {
             int number;
@@ -163,6 +176,7 @@ namespace IdleKittenAuto.WebPage
             return number;
         }
 
+        //Parses the per-second rate for a resource and converts it into a Rate object
         private Rate ParseRate(string input)
         {
             Rate rate = new Rate();
