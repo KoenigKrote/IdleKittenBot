@@ -7,32 +7,38 @@ using IdleKittenAuto.WebPage;
 
 namespace IdleKittenAuto
 {
-    public class BuildingList
+    public static class Buildings
     {
-        public Building CatnipField = new Building()
+        public static Dictionary<string, Building> Dictionary = new Dictionary<string, Building>()
         {
-            Name = "Catnip Field",
-            Count = 0,
-            Ratio = 1.12,
-            BaseRequirements = new Dictionary<string, double>() { { "catnip", 10} },
-            Requirements = new Dictionary<string, double>() { { "catnip", 10 } },
-            Produces = new List<Effects>()
             {
-                new ResourceProduction("catnip", true, 0.125)
-            }
-        };
-
-        public Building Hut = new Building()
-        {
-            Name = "Hut",
-            Count = 0,
-            Ratio = 2.25,
-            BaseRequirements = new Dictionary<string, double> { { "wood", 5 } },
-            Requirements = new Dictionary<string, double> { { "wood", 5 } },
-            Produces = new List<Effects>()
+                "catnipfield", new Building()
+                {
+                    Name = "Catnip Field",
+                    Count = 0,
+                    Ratio = 1.12,
+                    BaseRequirements = new Dictionary<string, double>() { { "catnip", 10} },
+                    Requirements = new Dictionary<string, double>() { { "catnip", 10 } },
+                    Produces = new List<Effects>()
+                    {
+                        new ResourceProduction("catnip", true, 0.125)
+                    }
+                }
+            },
             {
-                new StorageIncrease("kittens", 2),
-                new StorageIncrease("catpower", 75)
+                "hut", new Building()
+                {
+                    Name = "Hut",
+                    Count = 0,
+                    Ratio = 2.25,
+                    BaseRequirements = new Dictionary<string, double> { { "wood", 5 } },
+                    Requirements = new Dictionary<string, double> { { "wood", 5 } },
+                    Produces = new List<Effects>()
+                    {
+                        new StorageIncrease("kittens", 2),
+                        new StorageIncrease("catpower", 75)
+                    }
+                }
             }
         };
     }
