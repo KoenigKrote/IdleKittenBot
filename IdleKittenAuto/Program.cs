@@ -11,8 +11,8 @@ namespace IdleKittenAuto
     {
         static void Main(string[] args)
         {
-            MainPage _mainPage = new MainPage();
-            _mainPage.MainLoop();
+            Bonfire _bonfire = new Bonfire();
+            _bonfire.MainLoop();
         }
     }
 }
