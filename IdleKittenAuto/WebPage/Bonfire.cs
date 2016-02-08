@@ -16,7 +16,7 @@ namespace IdleKittenAuto.WebPage
         public IWebDriver _driver;
         public List<Resource> _resourceList = new List<Resource>();
         private Dictionary<string, Building> _buildings = Buildings.Dictionary;
-        private Regex rateRegex = new Regex(@"([0-9]*\.[0-9]*)|([0-9]+)");
+        
         private Actions _actions;
         private string SaveData = string.Empty;
         private int prevKittenCount = 0;
@@ -80,21 +80,15 @@ namespace IdleKittenAuto.WebPage
             _actions = new Actions(_driver);
             _driver.Navigate().GoToUrl(@"http://bloodrizer.ru/games/kittens/");
             PageFactory.InitElements(_driver, this);
-            //loadData();
-            
+            loadData();
+            PageFactory.InitElements(_driver, this);
             while (true)
             {
-                getResourceData();
+                _resourceList = Helper.updateResources(_driver, _resourceList);
                 gatherCatnip();
                 refineCatnip();
                 buildStructures();
             }
-        }
-
-        private Village gotoVillage()
-        {
-            btnVillagePage.Click();
-            return new Village(_driver, _resourceList);
         }
 
         private void buildStructures()
@@ -102,8 +96,6 @@ namespace IdleKittenAuto.WebPage
             buildCatnipField();
             buildHut();
         }
-
-        
 
         //Opens options, saves export data string to a text file.
         private void saveData()
@@ -130,42 +122,6 @@ namespace IdleKittenAuto.WebPage
             _driver.SwitchTo().Alert().Accept();
         }
 
-
-
-        //Loads resource data into a list for logic checking
-        private void getResourceData()
-        {
-            _resourceList.Clear();
-            IList<IWebElement> resourceRows = resourceTable.FindElements(By.XPath(@".//tr"));
-            for (int i = 0; i < resourceRows.Count; i++)
-            {
-                if (!string.IsNullOrWhiteSpace(resourceRows[i].Text))
-                {
-                    var row = resourceRows[i].FindElements(By.XPath(@".//td"));
-                    _resourceList.Add(new Resource
-                    {
-                        Name = StripNonChar(row[0].Text),
-                        Amount = StripNonNum(row[1].Text),
-                        MaxAmount = StripNonNum(row[2].Text),
-                        PerTick = ParseRate(row[3].Text)
-                    });
-                }
-            }
-            if (_resourceList.Count == 0)
-            {
-                btnGetCatnip.Click();
-                getResourceData();
-            }
-            Resource kittens = _resourceList.Where(r => r.Name.ToLower() == "kittens").FirstOrDefault();
-            if (kittens != null && kittens.Amount > prevKittenCount)
-            {
-                prevKittenCount = (int)Math.Floor(kittens.Amount);
-                gotoVillage();
-                btnBonfirePage.Click();
-            }
-        }
-
-        //Prototype logic for manually gathering catnip
         private void gatherCatnip()
         {
             for (int i = 0; i < 10; i++)
@@ -195,7 +151,7 @@ namespace IdleKittenAuto.WebPage
             Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").First();
             Resource kittens = _resourceList.Where(r => r.Name.ToLower() == "kittens").FirstOrDefault();
             var oldCount = _buildings["catnipfield"].Count;
-            _buildings["catnipfield"].Count = StripNonNum(btnBuildCatnipField.Text);
+            _buildings["catnipfield"].Count = Helper.StripNonNum(btnBuildCatnipField.Text);
             
             if (_buildings["catnipfield"].Count == 0 &&
                 _buildings["catnipfield"].Requirements["catnip"] < catnip.Amount)
@@ -209,7 +165,7 @@ namespace IdleKittenAuto.WebPage
                 _buildings["catnipfield"].Requirements["catnip"] *= _buildings["catnipfield"].Ratio;
 
             //TODO: What the fuck
-            if (TimeToEven(_buildings["catnipfield"].Requirements["catnip"],
+            if (Helper.TimeToEven(_buildings["catnipfield"].Requirements["catnip"],
                 _buildings["catnipfield"].Produces[0].PerSecond.Delta) < 1800 &&
                 _buildings["catnipfield"].Requirements["catnip"] < catnip.Amount)
             {
@@ -232,7 +188,7 @@ namespace IdleKittenAuto.WebPage
             Resource kittens = _resourceList.Where(r => r.Name.ToLower() == "kittens").FirstOrDefault();
 
             var oldCount = _buildings["catnipfield"].Count;
-            _buildings["catnipfield"].Count = StripNonNum(btnBuildHut.Text);
+            _buildings["catnipfield"].Count = Helper.StripNonNum(btnBuildHut.Text);
             if (wood == null) return;
 
             if (_buildings["hut"].Count == 0 && _buildings["hut"].Requirements["wood"] <= wood.Amount)
@@ -262,53 +218,6 @@ namespace IdleKittenAuto.WebPage
         }
 
 
-        //Strips non-alpha characters from a given string
-        private string StripNonChar(string input)
-        {
-            input = new string(input.Where(c => char.IsLetter(c)).ToArray());
-            return input;
-        }
-
-        //Strips non-numerical characters from a given string
-        private double StripNonNum(string input)
-        {
-            double number;
-            input = new string(input.Where(c => char.IsDigit(c) || c == '.').ToArray());
-            double.TryParse(input, out number);
-            return number;
-        }
-
-        //Parses the per-second rate for a resource and converts it into a Rate object
-        private Rate ParseRate(string input)
-        {
-            Rate rate = new Rate();
-            if (input.Contains('+'))
-                rate.Positive = true;
-            else if (input.Contains('-'))
-                rate.Positive = false;
-            else
-                rate.Positive = null;
-            if (rate.Positive != null)
-                rate.Delta = double.Parse(rateRegex.Match(input).ToString());
-            return rate;
-        }
-
-        //Divides current amount by negative delta
-        private int TimeToZero(Resource input)
-        {
-            return (int)Math.Ceiling((input.Amount / input.PerTick.Delta));
-        }
-
-        //Gets the remaining amount to capacity, divides it by current positive delta.
-        private int TimeToMax(Resource input)
-        {
-            return (int)Math.Ceiling(((input.MaxAmount - input.Amount) / input.PerTick.Delta));
-        }
-
-        private int TimeToEven(double amount, double delta)
-        {
-            return (int)Math.Floor(amount / delta);
-        }
     }
 
     public class Resource

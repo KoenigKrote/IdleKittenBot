@@ -34,11 +34,35 @@ namespace IdleKittenAuto.WebPage
         [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]")]
         private IWebElement jobTable;
 
-        [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]/div[1]/div/div[2]/a)]")]
+        [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]/div[1]/div/div[2]/a")]
         private IWebElement btnUpWoodcutter;
 
         [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]/div[1]/div/div[1]/a")]
         private IWebElement btnDownWoodcutter;
+
+        [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]/div[2]/div/div[2]/a")]
+        private IWebElement btnUpFarmer;
+
+        [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]/div[2]/div/div[1]/a")]
+        private IWebElement btnDownFarmer;
+
+        [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]/div[3]/div/div[2]/a")]
+        private IWebElement btnUpScholar;
+
+        [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]/div[3]/div/div[1]/a")]
+        private IWebElement btnDownScholar;
+
+        [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]/div[4]/div/div[2]/a")]
+        private IWebElement btnUpHunter;
+
+        [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]/div[4]/div/div[1]/a")]
+        private IWebElement btnDownHunter;
+
+        [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]/div[5]/div/div[2]/a")]
+        private IWebElement btnUpMiner;
+
+        [FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[2]/div[1]/div[3]/div[5]/div/div[1]/a")]
+        private IWebElement btnDownMiner;
 
         //[FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[1]/a[1]")]
         //[FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[1]/a[1]")]
@@ -56,7 +80,7 @@ namespace IdleKittenAuto.WebPage
             IList<IWebElement> jobRows = jobTable.FindElements(By.XPath(".//div[*]/div/span"));
             for (int i = 0; i < jobRows.Count; i++)
             {
-                if(!string.IsNullOrWhiteSpace(jobRows[i].Text))
+                if(!string.IsNullOrWhiteSpace(jobRows[i].Text) && jobRows[i].Text != "Clear")
                 {
                     _jobList.Add(JobDictionary.Dictionary[jobRegex.Match(jobRows[i].Text).ToString().Trim().ToLower()]);
                     _jobList[i+1].Count = StripNonNum(jobRows[i].Text);
@@ -66,8 +90,53 @@ namespace IdleKittenAuto.WebPage
 
         public void assignJobs()
         {
+            assignUnemployed();
+            int i = 0;
+            //TODO: Refactor pulling resources, this shit is ugly.
+            while(_resourceList.Where(r => r.Name.ToLower() == "catnip").First().PerTick.Positive == false &&
+                i < _jobList.Count)
+            {
+                if(_jobList[i].Count > 0)
+                {
+                    switch(_jobList[i].Title.ToLower())
+                    {
+                        case "woodcutter":
+                            btnDownWoodcutter.Click();
+                            btnUpFarmer.Click();
+                            _resourceList = Helper.updateResources(_driver, _resourceList);
+                            continue;
+                        case "scholar":
+                            btnDownScholar.Click();
+                            btnUpFarmer.Click();
+                            _resourceList = Helper.updateResources(_driver, _resourceList);
+                            continue;
+                        case "hunter":
+                            btnDownHunter.Click();
+                            btnUpFarmer.Click();
+                            _resourceList = Helper.updateResources(_driver, _resourceList);
+                            continue;
+                        case "miner":
+                            btnDownMiner.Click();
+                            btnUpFarmer.Click();
+                            _resourceList = Helper.updateResources(_driver, _resourceList);
+                            continue;
+                    }
+                }
+                i++;
+            }
+        }
+
+        private void assignUnemployed()
+        {
             for (int i = 0; i < _jobList[0].Count; i++)
             {
+                Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").First();
+                if (catnip.PerTick.Positive == false)
+                {
+                    btnUpFarmer.Click();
+                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    continue;
+                }
                 btnUpWoodcutter.Click();
             }
         }
@@ -90,7 +159,8 @@ namespace IdleKittenAuto.WebPage
 
         private int FreeKittens (string input)
         {
-            int Free = int.Parse(freeRegex.Match(input).ToString());
+            string FreeKitten = freeRegex.Match(input).ToString().Split('/').First();
+            int Free = int.Parse(FreeKitten);
             return Free;
         }
     }
