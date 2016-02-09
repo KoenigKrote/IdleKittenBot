@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace IdleKittenAuto.WebPage
 {
-    public class Village
+    public class Village : Program
     {
         IWebDriver _driver;
         List<Resource> _resourceList;
@@ -91,40 +91,79 @@ namespace IdleKittenAuto.WebPage
         public void assignJobs()
         {
             assignUnemployed();
+            Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").First();
             int i = 0;
             //TODO: Refactor pulling resources, this shit is ugly.
-            while(_resourceList.Where(r => r.Name.ToLower() == "catnip").First().PerTick.Positive == false &&
-                i < _jobList.Count)
+            while(catnip.PerTick.Positive == false && i < _jobList.Count)
             {
                 if(_jobList[i].Count > 0)
                 {
-                    switch(_jobList[i].Title.ToLower())
-                    {
-                        case "woodcutter":
-                            btnDownWoodcutter.Click();
-                            btnUpFarmer.Click();
-                            _resourceList = Helper.updateResources(_driver, _resourceList);
-                            continue;
-                        case "scholar":
-                            btnDownScholar.Click();
-                            btnUpFarmer.Click();
-                            _resourceList = Helper.updateResources(_driver, _resourceList);
-                            continue;
-                        case "hunter":
-                            btnDownHunter.Click();
-                            btnUpFarmer.Click();
-                            _resourceList = Helper.updateResources(_driver, _resourceList);
-                            continue;
-                        case "miner":
-                            btnDownMiner.Click();
-                            btnUpFarmer.Click();
-                            _resourceList = Helper.updateResources(_driver, _resourceList);
-                            continue;
-                    }
+                    upFarmers(i);
                 }
                 i++;
             }
+
+
+            while(catnip.PerTick.Positive == true && catnip.PerTick.Delta >= 9 &&
+                JobDictionary.Dictionary["farmer"].Count > 0)
+            {
+                if(Library.Count > 0)
+                {
+                    btnDownFarmer.Click();
+                    btnUpScholar.Click();
+                }
+            }
         }
+
+        private void upFarmers(int i)
+        {
+            switch (_jobList[i].Title.ToLower())
+            {
+                case "hunter":
+                    btnDownHunter.Click();
+                    btnUpFarmer.Click();
+                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    break;
+                case "woodcutter":
+                    btnDownWoodcutter.Click();
+                    btnUpFarmer.Click();
+                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    break;
+                case "miner":
+                    btnDownMiner.Click();
+                    btnUpFarmer.Click();
+                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    break;
+                case "scholar":
+                    btnDownScholar.Click();
+                    btnUpFarmer.Click();
+                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    break;
+            }
+        }
+
+        private void jobUp(int i)
+        {
+            switch (_jobList[i].Title.ToLower())
+            {
+                case "hunter":
+                    btnUpHunter.Click();
+                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    break;
+                case "woodcutter":
+                    btnUpWoodcutter.Click();
+                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    break;
+                case "miner":
+                    btnUpMiner.Click();
+                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    break;
+                case "scholar":
+                    btnUpScholar.Click();
+                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    break;
+            }
+            }
 
         private void assignUnemployed()
         {
@@ -137,7 +176,10 @@ namespace IdleKittenAuto.WebPage
                     _resourceList = Helper.updateResources(_driver, _resourceList);
                     continue;
                 }
-                btnUpWoodcutter.Click();
+                if(_jobList[i].Count < 1)
+                {
+                    jobUp(i);
+                }
             }
         }
 

@@ -63,11 +63,21 @@ namespace IdleKittenAuto.WebPage
                 getResourceData();
             }
             Resource kittens = _resourceList.Where(r => r.Name.ToLower() == "kittens").FirstOrDefault();
-            if (kittens != null && kittens.Amount > Helper.prevKittenCount)
+            if (kittens != null)
             {
-                Helper.prevKittenCount = (int)Math.Floor(kittens.Amount);
-                gotoVillage(_driver, _resourceList);
-                btnBonfirePage.Click();
+                Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").FirstOrDefault();
+                if (kittens.Amount > Helper.prevKittenCount)
+                {
+                    Helper.prevKittenCount = (int)Math.Floor(kittens.Amount);
+                    gotoVillage(_driver, _resourceList);
+                    btnBonfirePage.Click();
+                }
+                else if (catnip.PerTick.Positive == false || catnip.PerTick.Delta >= 11 &&
+                    JobDictionary.Dictionary["farmer"].Count > 0)
+                {
+                    gotoVillage(_driver, _resourceList);
+                    btnBonfirePage.Click();
+                }
             }
             return _resourceList;
         }
