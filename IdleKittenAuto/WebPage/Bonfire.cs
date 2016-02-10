@@ -306,22 +306,5 @@ namespace IdleKittenAuto.WebPage
 
     }
 
-    public class Resource
-    {
-        public string Name { get; set; } //Name of resource
-        public double Amount { get; set; } //Current amount of resource
-        public double MaxAmount { get; set; } //Maximum storage amount for resource
-        public double MinAmount { get; set; } //Smallest amount logic will allow before acting
-        public Rate PerTick { get; set; } //Gives delta change and whether it is increase/descrease
-        public Rate Demand { get; set; } //Demand listed in game for the resource
-        public int SecToZero { get; set; } //Minutes to Zero of resource
-        public int SecToMax { get; set; } //Minutes to Maximum of resource
-    }
 
-    public class Rate
-    {
-        public string Name { get; set; } //Optional string for percentage changes on buildings
-        public bool? Positive { get; set; } //Nullable bool for positive change, negative change, and no change
-        public double Delta { get; set; } //Actual delta of change
-    }
 }

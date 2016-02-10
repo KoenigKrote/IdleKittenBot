@@ -62,6 +62,7 @@ namespace IdleKittenAuto.WebPage
                 btnGetCatnip.Click();
                 getResourceData();
             }
+
             Resource kittens = _resourceList.Where(r => r.Name.ToLower() == "kittens").FirstOrDefault();
             if (kittens != null)
             {
@@ -87,5 +88,50 @@ namespace IdleKittenAuto.WebPage
             btnVillagePage.Click();
             return new Village(_driver, _resourceList);
         }
+    }
+
+    public static class Resources
+    {
+        public static Resource Catnip { get; set; }
+        public static Resource Wood { get; set; }
+        public static Resource Minerals { get; set; }
+        public static Resource Coal { get; set; }
+        public static Resource Iron { get; set; }
+        public static Resource Gold { get; set; }
+        public static Resource Oil { get; set; }
+        public static Resource Titanium { get; set; }
+        public static Resource Uranium { get; set; }
+        public static Resource Unobtainium { get; set; }
+        public static Resource Antimatter { get; set; }
+        public static Resource Catpower { get; set; }
+        public static Resource Science { get; set; }
+        public static Resource Culture { get; set; }
+        public static Resource Faith { get; set; }
+        public static Resource Energy { get; set; }
+        public static Resource Kittens { get; set; }
+        public static Resource Zebras { get; set; }
+        public static Resource Starchart { get; set; }
+        public static Resource TimeCrystal { get; set; }
+        public static Resource Sorrow { get; set; }
+        public static Resource Relic { get; set; }
+    }
+
+    public class Resource
+    {
+        public string Name { get; set; } //Name of resource
+        public double Amount { get; set; } //Current amount of resource
+        public double MaxAmount { get; set; } //Maximum storage amount for resource
+        public double MinAmount { get; set; } //Smallest amount logic will allow before acting
+        public Rate PerTick { get; set; } //Gives delta change and whether it is increase/descrease
+        public Rate Demand { get; set; } //Demand listed in game for the resource
+        public int SecToZero { get; set; } //Minutes to Zero of resource
+        public int SecToMax { get; set; } //Minutes to Maximum of resource
+    }
+
+    public class Rate
+    {
+        public string Name { get; set; } //Optional string for percentage changes on buildings
+        public bool? Positive { get; set; } //Nullable bool for positive change, negative change, and no change
+        public double Delta { get; set; } //Actual delta of change
     }
 }
