@@ -174,10 +174,9 @@ namespace IdleKittenAuto.WebPage
                     Helper.updateResources(_driver);
                     continue;
                 }
-                if(_jobList[i].Count < 1)
-                {
-                    jobUp(i);
-                }
+                //TODO: Need logic to parse all available jobs and find the one with the least workers that isn't farming
+                 jobUp(i);
+                
             }
         }
 
