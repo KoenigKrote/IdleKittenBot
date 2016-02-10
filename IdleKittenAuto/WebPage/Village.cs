@@ -14,11 +14,9 @@ namespace IdleKittenAuto.WebPage
     public class Village : Program
     {
         IWebDriver _driver;
-        List<Resource> _resourceList;
-        public Village(IWebDriver _driver, List<Resource> _resourceList)
+        public Village(IWebDriver _driver)
         {
             this._driver = _driver;
-            this._resourceList = _resourceList;
             PageFactory.InitElements(_driver, this);
             getJobData();
             assignJobs();
@@ -83,7 +81,7 @@ namespace IdleKittenAuto.WebPage
                 if(!string.IsNullOrWhiteSpace(jobRows[i].Text) && jobRows[i].Text != "Clear")
                 {
                     _jobList.Add(JobDictionary.Dictionary[jobRegex.Match(jobRows[i].Text).ToString().Trim().ToLower()]);
-                    _jobList[i+1].Count = StripNonNum(jobRows[i].Text);
+                    _jobList[i+1].Count = Helper.StripNonNum(jobRows[i].Text);
                 }
             }
         }
@@ -91,7 +89,7 @@ namespace IdleKittenAuto.WebPage
         public void assignJobs()
         {
             assignUnemployed();
-            Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").First();
+            Resource catnip = Helper.getResource("catnip");
             int i = 0;
             //TODO: Refactor pulling resources, this shit is ugly.
             while(catnip.PerTick.Positive == false && i < _jobList.Count)
@@ -122,22 +120,22 @@ namespace IdleKittenAuto.WebPage
                 case "hunter":
                     btnDownHunter.Click();
                     btnUpFarmer.Click();
-                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    Helper.updateResources(_driver);
                     break;
                 case "woodcutter":
                     btnDownWoodcutter.Click();
                     btnUpFarmer.Click();
-                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    Helper.updateResources(_driver);
                     break;
                 case "miner":
                     btnDownMiner.Click();
                     btnUpFarmer.Click();
-                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    Helper.updateResources(_driver);
                     break;
                 case "scholar":
                     btnDownScholar.Click();
                     btnUpFarmer.Click();
-                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    Helper.updateResources(_driver);
                     break;
             }
         }
@@ -148,19 +146,19 @@ namespace IdleKittenAuto.WebPage
             {
                 case "hunter":
                     btnUpHunter.Click();
-                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    Helper.updateResources(_driver);
                     break;
                 case "woodcutter":
                     btnUpWoodcutter.Click();
-                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    Helper.updateResources(_driver);
                     break;
                 case "miner":
                     btnUpMiner.Click();
-                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    Helper.updateResources(_driver);
                     break;
                 case "scholar":
                     btnUpScholar.Click();
-                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    Helper.updateResources(_driver);
                     break;
             }
             }
@@ -169,11 +167,11 @@ namespace IdleKittenAuto.WebPage
         {
             for (int i = 0; i < _jobList[0].Count; i++)
             {
-                Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").First();
+                Resource catnip = Helper.getResource("catnip");
                 if (catnip.PerTick.Positive == false)
                 {
                     btnUpFarmer.Click();
-                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    Helper.updateResources(_driver);
                     continue;
                 }
                 if(_jobList[i].Count < 1)
@@ -181,22 +179,6 @@ namespace IdleKittenAuto.WebPage
                     jobUp(i);
                 }
             }
-        }
-
-        //Strips non-alpha characters from a given string
-        private string StripNonChar(string input)
-        {
-            input = new string(input.Where(c => char.IsLetter(c)).ToArray());
-            return input;
-        }
-
-        //Strips non-numerical characters from a given string
-        private double StripNonNum(string input)
-        {
-            double number;
-            input = new string(input.Where(c => char.IsDigit(c) || c == '.').ToArray());
-            double.TryParse(input, out number);
-            return number;
         }
 
         private int FreeKittens (string input)

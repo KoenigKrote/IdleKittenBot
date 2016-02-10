@@ -16,16 +16,18 @@ namespace IdleKittenAuto
     public static class Helper
     {
         private static Regex rateRegex = new Regex(@"([0-9]*\.[0-9]*)|([0-9]+)");
-
+        public static List<Resource> _resources = new List<Resource>();
         public static int prevKittenCount = 0;
 
         //Cheap D.R.Y. fix
-        public static List<Resource> updateResources(IWebDriver _driver, List<Resource> _resourceList)
+        public static void updateResources(IWebDriver _driver)
         {
-            ResourceList resources = new ResourceList(_driver, _resourceList);
-            _resourceList = resources.getResourceData();
-            return _resourceList;
+            ResourceList resources = new ResourceList(_driver, _resources);
+            _resources = resources.getResourceData();
+            resources.checkForJobAssignment();
         }
+
+
 
         //Strips non-alpha characters from a given string
         public static string StripNonChar(string input)
@@ -73,6 +75,12 @@ namespace IdleKittenAuto
         public static int TimeToEven(double amount, double delta)
         {
             return (int)Math.Floor(amount / delta);
+        }
+
+        public static Resource getResource(string resourceName)
+        {
+            Resource resource = _resources.FirstOrDefault(r => r.Name.ToLower() == resourceName.ToLower());
+            return resource;
         }
     }
 }

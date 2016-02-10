@@ -14,7 +14,6 @@ namespace IdleKittenAuto.WebPage
     public class Bonfire : Program
     {
         public IWebDriver _driver;
-        public List<Resource> _resourceList = new List<Resource>();
         private Actions _actions;
         private string SaveData = string.Empty;
         private int counter = 0;
@@ -85,7 +84,7 @@ namespace IdleKittenAuto.WebPage
             {
                 for (int i = 0; i < 20; i++)
                 {
-                    _resourceList = Helper.updateResources(_driver, _resourceList);
+                    Helper.updateResources(_driver);
                     gatherCatnip();
                     refineCatnip();
                     buildStructures();
@@ -160,10 +159,10 @@ namespace IdleKittenAuto.WebPage
 
         private void refineCatnip()
         {
-            Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").First();
+            Resource catnip = Helper.getResource("catnip");
             if (catnip.Amount > 100)
             {
-                Resource wood = _resourceList.Where(r => r.Name.ToLower() == "wood").FirstOrDefault();
+                Resource wood = Helper.getResource("wood");
                 if (wood == null || catnip.PerTick.Positive == true && catnip.PerTick.Delta > 10)
                     btnRefineCatnip.Click();
             }
@@ -173,8 +172,8 @@ namespace IdleKittenAuto.WebPage
         private void buildCatnipField()
         {
             if (btnBuildCatnipField == null) return;
-            Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").First();
-            Resource kittens = _resourceList.Where(r => r.Name.ToLower() == "kittens").FirstOrDefault();
+            Resource catnip = Helper.getResource("catnip");
+            Resource kittens = Helper.getResource("kittens");
 
             var oldCount = CatnipField.Count;
             try
@@ -219,11 +218,11 @@ namespace IdleKittenAuto.WebPage
         private void buildHut()
         {
             if (btnBuildHut == null) return;
-            Resource wood = _resourceList.Where(r => r.Name.ToLower() == "wood").FirstOrDefault();
+            Resource wood = Helper.getResource("wood");
             if (wood == null) return;
 
-            Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").First();
-            Resource kittens = _resourceList.Where(r => r.Name.ToLower() == "kittens").FirstOrDefault();
+            Resource catnip = Helper.getResource("catnip");
+            Resource kittens = Helper.getResource("kittens");
 
             try
             {
@@ -258,11 +257,11 @@ namespace IdleKittenAuto.WebPage
         private void buildPasture()
         {
             if (btnBuildPasture == null) return;
-            Resource wood = _resourceList.Where(r => r.Name.ToLower() == "wood").FirstOrDefault();
+            Resource wood = Helper.getResource("wood");
             if (wood == null) return;
-            Resource kittens = _resourceList.Where(r => r.Name.ToLower() == "kittens").FirstOrDefault();
+            Resource kittens = Helper.getResource("kittens");
             if (kittens == null) return;
-            Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").First();
+            Resource catnip = Helper.getResource("catnip");
 
             if (catnip.PerTick.Positive == true && catnip.PerTick.Delta >= 18 &&
                 Pasture.Count < 50 && Pasture.Requirements["catnip"] < catnip.Amount
@@ -284,7 +283,7 @@ namespace IdleKittenAuto.WebPage
         private void buildLibrary()
         {
             if (btnBuildLibrary == null) return;
-            Resource wood = _resourceList.Where(r => r.Name.ToLower() == "wood").FirstOrDefault();
+            Resource wood = Helper.getResource("wood");
 
             try
             {

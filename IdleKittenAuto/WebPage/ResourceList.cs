@@ -63,30 +63,35 @@ namespace IdleKittenAuto.WebPage
                 getResourceData();
             }
 
-            Resource kittens = _resourceList.Where(r => r.Name.ToLower() == "kittens").FirstOrDefault();
+            return _resourceList;
+        }
+
+        public void checkForJobAssignment()
+        {
+            Resource kittens = Helper.getResource("kittens");
             if (kittens != null)
             {
-                Resource catnip = _resourceList.Where(r => r.Name.ToLower() == "catnip").FirstOrDefault();
+                Resource catnip = Helper.getResource("catnip");
                 if (kittens.Amount > Helper.prevKittenCount)
                 {
                     Helper.prevKittenCount = (int)Math.Floor(kittens.Amount);
-                    gotoVillage(_driver, _resourceList);
+                    gotoVillage(_driver);
                     btnBonfirePage.Click();
                 }
                 else if (catnip.PerTick.Positive == false || catnip.PerTick.Delta >= 11 &&
                     JobDictionary.Dictionary["farmer"].Count > 0)
                 {
-                    gotoVillage(_driver, _resourceList);
+                    gotoVillage(_driver);
                     btnBonfirePage.Click();
                 }
             }
-            return _resourceList;
         }
 
-        private Village gotoVillage(IWebDriver _driver, List<Resource> _resourceList)
+
+        private Village gotoVillage(IWebDriver _driver)
         {
             btnVillagePage.Click();
-            return new Village(_driver, _resourceList);
+            return new Village(_driver);
         }
     }
 
