@@ -68,20 +68,20 @@ namespace IdleKittenAuto.WebPage
         //[FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[1]/a[1]")]
         //[FindsBy(How = How.XPath, Using = @"//*[@id='gameContainerId']/div[1]/a[1]")]
 
-
+        //Parse the HTML table holding all the job buttons and job count
         public void getJobData()
         {
-            _jobList.Clear();
             var unemployed = jobTable.FindElement(By.XPath(@".//table/tr[2]/td"));
-            _jobList.Add(JobDictionary.Dictionary["unemployed"]);
-            _jobList[0].Count = FreeKittens(unemployed.Text);
+            Jobs.Job["unemployed"].Count = FreeKittens(unemployed.Text);
             IList<IWebElement> jobRows = jobTable.FindElements(By.XPath(".//div[*]/div/span"));
             for (int i = 0; i < jobRows.Count; i++)
             {
-                if(!string.IsNullOrWhiteSpace(jobRows[i].Text) && jobRows[i].Text != "Clear")
+                if (!string.IsNullOrWhiteSpace(jobRows[i].Text) && jobRows[i].Text != "Clear")
                 {
-                    _jobList.Add(JobDictionary.Dictionary[jobRegex.Match(jobRows[i].Text).ToString().Trim().ToLower()]);
-                    _jobList[i+1].Count = Helper.StripNonNum(jobRows[i].Text);
+                    //TODO: Rewrite this so it's not so damn ugly.
+                    string job = jobRegex.Match(jobRows[i].Text).ToString().Trim().ToLower();
+                    Jobs.Job[job].Count = Helper.StripNonNum(jobRows[i].Text);
+                    Jobs.Job[job].Available = true;
                 }
             }
         }
@@ -91,10 +91,13 @@ namespace IdleKittenAuto.WebPage
             assignUnemployed();
             Resource catnip = Helper.getResource("catnip");
             int i = 0;
-            //TODO: Refactor pulling resources, this shit is ugly.
-            while(catnip.PerTick.Positive == false && i < _jobList.Count)
+            
+
+
+            //TODO: Rework this, I don't think the logic is sound.
+            while (catnip.PerTick.Positive == false && i < _jobList.Count)
             {
-                if(_jobList[i].Count > 0)
+                if (_jobList[i].Count > 0)
                 {
                     upFarmers(i);
                 }
@@ -102,10 +105,10 @@ namespace IdleKittenAuto.WebPage
             }
 
 
-            while(catnip.PerTick.Positive == true && catnip.PerTick.Delta >= 9 &&
-                JobDictionary.Dictionary["farmer"].Count > 0)
+            while (catnip.PerTick.Positive == true && catnip.PerTick.Delta >= 9 &&
+                Jobs.Job["farmer"].Count > 0)
             {
-                if(Library.Count > 0)
+                if (Buildings.Library.Count > 0)
                 {
                     btnDownFarmer.Click();
                     btnUpScholar.Click();
@@ -113,6 +116,70 @@ namespace IdleKittenAuto.WebPage
             }
         }
 
+
+
+        //Assign unemployed kittens, based on current catnip income
+        private void assignUnemployed()
+        {
+            Dictionary<string, double> resourceGoal = new Dictionary<string, double>();
+            foreach(var item in Objective.Building.Requirements)
+            {
+                double Percentage = Helper.getResource(item.Key).Amount / item.Value;
+                resourceGoal.Add(item.Key, Percentage);
+            }
+            double totalPercentage = 0;
+            foreach(var item in resourceGoal)
+            {
+                totalPercentage += item.Value;
+            }
+
+            totalPercentage = totalPercentage / resourceGoal.Count;
+            
+            //TODO: Fix this, broken now.
+            foreach(var item in resourceGoal)
+            {
+                var key = item.Key;
+                var value = item.Value;
+                value /= totalPercentage;
+                resourceGoal[key] = value;
+            }
+
+
+
+            for (int i = 0; i < Jobs.Job["unemployed"].Count; i++)
+            {
+                //Always check to make sure we have positive catnip before chasing objectives
+                Resource catnip = Helper.getResource("catnip");
+                if (catnip.PerTick.Positive == false || catnip.PerTick.Delta < 8)
+                {
+                    btnUpFarmer.Click();
+                    Helper.updateResources(_driver);
+                    continue;
+                }
+                else
+                {
+                    Resource kittens = Helper.getResource("kittens");
+                    foreach (var item in resourceGoal)
+                    {
+                        int toAssign = (int)Math.Floor(Jobs.Job["unemployed"].Count * item.Value);
+                        for(int j = 0; j < toAssign; j++)
+                        {
+                            jobUp(item.Key);
+                        }
+                    }
+
+                }
+            }
+        }
+
+        private int FreeKittens(string input)
+        {
+            string FreeKitten = freeRegex.Match(input).ToString().Split('/').First();
+            int Free = int.Parse(FreeKitten);
+            return Free;
+        }
+
+        //Lazy switch to move other jobs to farming
         private void upFarmers(int i)
         {
             switch (_jobList[i].Title.ToLower())
@@ -140,6 +207,7 @@ namespace IdleKittenAuto.WebPage
             }
         }
 
+        //Lazy switch to increment jobs
         private void jobUp(int i)
         {
             switch (_jobList[i].Title.ToLower())
@@ -161,30 +229,30 @@ namespace IdleKittenAuto.WebPage
                     Helper.updateResources(_driver);
                     break;
             }
-            }
-
-        private void assignUnemployed()
-        {
-            for (int i = 0; i < _jobList[0].Count; i++)
-            {
-                Resource catnip = Helper.getResource("catnip");
-                if (catnip.PerTick.Positive == false)
-                {
-                    btnUpFarmer.Click();
-                    Helper.updateResources(_driver);
-                    continue;
-                }
-                //TODO: Need logic to parse all available jobs and find the one with the least workers that isn't farming
-                 jobUp(i);
-                
-            }
         }
 
-        private int FreeKittens (string input)
+        //Overload to assign jobs by resource
+        private void jobUp(string resource)
         {
-            string FreeKitten = freeRegex.Match(input).ToString().Split('/').First();
-            int Free = int.Parse(FreeKitten);
-            return Free;
+            switch (resource)
+            {
+                case "catpower":
+                    btnUpHunter.Click();
+                    Helper.updateResources(_driver);
+                    break;
+                case "wood":
+                    btnUpWoodcutter.Click();
+                    Helper.updateResources(_driver);
+                    break;
+                case "minerals":
+                    btnUpMiner.Click();
+                    Helper.updateResources(_driver);
+                    break;
+                case "science":
+                    btnUpScholar.Click();
+                    Helper.updateResources(_driver);
+                    break;
+            }
         }
     }
 }

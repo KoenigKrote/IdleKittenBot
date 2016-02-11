@@ -79,7 +79,7 @@ namespace IdleKittenAuto.WebPage
                     btnBonfirePage.Click();
                 }
                 else if (catnip.PerTick.Positive == false || catnip.PerTick.Delta >= 11 &&
-                    JobDictionary.Dictionary["farmer"].Count > 0)
+                    Jobs.Job["farmer"].Count > 0)
                 {
                     gotoVillage(_driver);
                     btnBonfirePage.Click();
@@ -93,32 +93,6 @@ namespace IdleKittenAuto.WebPage
             btnVillagePage.Click();
             return new Village(_driver);
         }
-    }
-
-    public static class Resources
-    {
-        public static Resource Catnip { get; set; }
-        public static Resource Wood { get; set; }
-        public static Resource Minerals { get; set; }
-        public static Resource Coal { get; set; }
-        public static Resource Iron { get; set; }
-        public static Resource Gold { get; set; }
-        public static Resource Oil { get; set; }
-        public static Resource Titanium { get; set; }
-        public static Resource Uranium { get; set; }
-        public static Resource Unobtainium { get; set; }
-        public static Resource Antimatter { get; set; }
-        public static Resource Catpower { get; set; }
-        public static Resource Science { get; set; }
-        public static Resource Culture { get; set; }
-        public static Resource Faith { get; set; }
-        public static Resource Energy { get; set; }
-        public static Resource Kittens { get; set; }
-        public static Resource Zebras { get; set; }
-        public static Resource Starchart { get; set; }
-        public static Resource TimeCrystal { get; set; }
-        public static Resource Sorrow { get; set; }
-        public static Resource Relic { get; set; }
     }
 
     public class Resource

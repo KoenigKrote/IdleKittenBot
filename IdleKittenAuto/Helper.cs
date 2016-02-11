@@ -12,12 +12,12 @@ using System.Text.RegularExpressions;
 
 namespace IdleKittenAuto
 {
-    //TODO: Refactor so I don't need to pass around instances.  Driver and other re-used vars should be declared here.
     public static class Helper
     {
         private static Regex rateRegex = new Regex(@"([0-9]*\.[0-9]*)|([0-9]+)");
         public static List<Resource> _resources = new List<Resource>();
         public static int prevKittenCount = 0;
+
 
         //Cheap D.R.Y. fix
         public static void updateResources(IWebDriver _driver)
@@ -26,9 +26,7 @@ namespace IdleKittenAuto
             _resources = resources.getResourceData();
             resources.checkForJobAssignment();
         }
-
-
-
+        
         //Strips non-alpha characters from a given string
         public static string StripNonChar(string input)
         {

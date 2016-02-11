@@ -53,9 +53,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Buildings.cs" />
+    <Compile Include="GameObjects\Buildings.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="Job.cs" />
+    <Compile Include="GameObjects\Jobs.cs" />
+    <Compile Include="Objective.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebPage\Bonfire.cs" />

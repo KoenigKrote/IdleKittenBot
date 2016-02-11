@@ -9,20 +9,22 @@ namespace IdleKittenAuto
     public class Job
     {
         public string Title { get; set; }
+        public bool Available { get; set; }
         public string Prerequesite { get; set; }
         public string Resource { get; set; }
         public double PerTick { get; set; }
         public double Count { get; set; }
     }
 
-    public static class JobDictionary
+    public static class Jobs
     {
-        public static Dictionary<string, Job> Dictionary = new Dictionary<string, Job>()
+        public static Dictionary<string, Job> Job = new Dictionary<string, Job>()
         {
             {
                 "unemployed", new Job()
                 {
                     Title = "unemployed",
+                    Available = false,
                     Count = 0
                 }
             },
@@ -30,6 +32,7 @@ namespace IdleKittenAuto
                 "woodcutter", new Job()
                 {
                     Title = "woodcutter",
+                    Available = false,
                     Resource = "wood",
                     PerTick = 0.015,
                     Count = 0
@@ -39,6 +42,7 @@ namespace IdleKittenAuto
                 "farmer", new Job()
                 {
                     Title = "farmer",
+                    Available = false,
                     Prerequesite = "agriculture",
                     Resource = "catnip",
                     PerTick = 1.00,
@@ -49,6 +53,7 @@ namespace IdleKittenAuto
                 "scholar", new Job()
                 {
                     Title = "scholar",
+                    Available = false,
                     Prerequesite = "library",
                     Resource = "science",
                     PerTick = 0.05,
@@ -59,6 +64,7 @@ namespace IdleKittenAuto
                 "hunter", new Job()
                 {
                     Title = "hunter",
+                    Available = false,
                     Prerequesite = "archery",
                     Resource = "catpower",
                     PerTick = 0.06,
@@ -69,6 +75,7 @@ namespace IdleKittenAuto
                 "miner", new Job()
                 {
                     Title = "miner",
+                    Available = false,
                     Prerequesite = "mine",
                     Resource = "minerals",
                     PerTick = 0.05,
