@@ -19,7 +19,10 @@ namespace IdleKittenAuto.WebPage
         {
             this._driver = _driver;
             PageFactory.InitElements(_driver, this);
+            //Stupid thing wasn't updating correctly on additional job assignments
+            Thread.Sleep(1000);
             getJobData();
+            Thread.Sleep(500);
             AssignJobs();
         }
 
@@ -140,7 +143,7 @@ namespace IdleKittenAuto.WebPage
                 {
                     foreach (var item in Objective.ResourceGoal)
                     {
-                        int toAssign = Helper.kittensToAssign(item.Value);
+                        int toAssign = Helper.kittensToAssign(item.Value, item.Key);
                         for (int j = 0; j < toAssign; j++)
                         {
                             jobUp(item.Key);

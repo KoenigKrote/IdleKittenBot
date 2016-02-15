@@ -103,7 +103,6 @@ namespace IdleKittenAuto.WebPage
                     buildCatnipField();
                     break;
                 case "Hut":
-                    refineCatnip();
                     buildHut();
                     break;
             }
@@ -251,11 +250,18 @@ namespace IdleKittenAuto.WebPage
         private void buildHut()
         {
             if (btnBuildHut == null)
+            {
+                refineCatnip();
                 return;
+            }
             else
                 Buildings.Hut.Available = true;
             Resource wood = Helper.getResource("wood");
-            if (wood == null) return;
+            if (wood == null)
+            {
+                refineCatnip();
+                return;
+            }
 
             Resource catnip = Helper.getResource("catnip");
             Resource kittens = Helper.getResource("kittens");
@@ -277,6 +283,10 @@ namespace IdleKittenAuto.WebPage
                 Buildings.Hut.Requirements["wood"] *= Buildings.Hut.Ratio;
                 return;
             }
+            else
+            {
+                refineCatnip();
+            }
 
             //Make sure we have positive catnip income before building anything.
             if (catnip.PerTick.Positive == true && catnip.PerTick.Delta >= 10 &&
@@ -288,6 +298,16 @@ namespace IdleKittenAuto.WebPage
                     Buildings.Hut.Requirements["wood"] *= Buildings.Hut.Ratio;
                     return;
                 }
+            }
+            else if (Objective.Building == Buildings.Hut && 
+                Buildings.Hut.Requirements["wood"] <= wood.Amount)
+            {
+                buildCatnipField();
+            }
+            else if(Objective.Building == Buildings.Hut &&
+                Buildings.Hut.Requirements["wood"] > wood.Amount)
+            {
+                refineCatnip();
             }
         }
 

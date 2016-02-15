@@ -83,12 +83,21 @@ namespace IdleKittenAuto
             return resource;
         }
 
+        //Gets job count by resource type
+        public static double getJobCount(string resourceName)
+        {
+            double jobCount = Jobs.Job.FirstOrDefault(r => r.Value.Resource == resourceName).Value.Count;
+            return jobCount;
+        }
+
         //Used to calculate how many kittens should be assigned to gather a certain resource, based on
         //the current objective resource requirements/
-        public static int kittensToAssign(double Percentage)
+        public static int kittensToAssign(double Percentage, string resourceName)
         {
-            double Amount = getResource("kittens").Amount - Jobs.Job["farmer"].Count; //We don't want to remove farmers if we don't have to.
+            //Reduce the count by number of kittens already performing that job, and ignore farmer count to maintain catnip.
+            double Amount = (getResource("kittens").Amount - Jobs.Job["farmer"].Count) - getJobCount(resourceName);
             double PercentOfKittens = Amount * Percentage;
+
             return (int)Math.Round(PercentOfKittens, 0, MidpointRounding.AwayFromZero);
         }
     }
