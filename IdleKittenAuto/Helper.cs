@@ -70,15 +70,26 @@ namespace IdleKittenAuto
             return (int)Math.Ceiling(((input.MaxAmount - input.Amount) / input.PerTick.Delta));
         }
 
+        //Gets the remaining time until a building breaks even on it's cost vs production
         public static int TimeToEven(double amount, double delta)
         {
             return (int)Math.Floor(amount / delta);
         }
 
+        //Helper method to return resources via a LINQ statement
         public static Resource getResource(string resourceName)
         {
             Resource resource = _resources.FirstOrDefault(r => r.Name.ToLower() == resourceName.ToLower());
             return resource;
+        }
+
+        //Used to calculate how many kittens should be assigned to gather a certain resource, based on
+        //the current objective resource requirements/
+        public static int kittensToAssign(double Percentage)
+        {
+            double Amount = getResource("kittens").Amount - Jobs.Job["farmer"].Count; //We don't want to remove farmers if we don't have to.
+            double PercentOfKittens = Amount * Percentage;
+            return (int)Math.Round(PercentOfKittens, 0, MidpointRounding.AwayFromZero);
         }
     }
 }

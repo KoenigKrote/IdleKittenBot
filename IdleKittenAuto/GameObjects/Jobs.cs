@@ -14,6 +14,14 @@ namespace IdleKittenAuto
         public string Resource { get; set; }
         public double PerTick { get; set; }
         public double Count { get; set; }
+        public double? Percetange { get
+            {
+                if (Available)
+                    return (Count / Helper.getResource("kittens").Amount);
+                else
+                    return 0;
+            }
+        }
     }
 
     public static class Jobs

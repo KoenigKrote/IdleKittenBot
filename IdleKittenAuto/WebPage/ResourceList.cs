@@ -15,6 +15,7 @@ namespace IdleKittenAuto.WebPage
     {
         private IWebDriver _driver;
         private List<Resource> _resourceList;
+        private IList<IWebElement> resourceRows;
 
         public ResourceList(IWebDriver _driver, List<Resource> _resourceList)
         {
@@ -42,28 +43,37 @@ namespace IdleKittenAuto.WebPage
         {
             PageFactory.InitElements(_driver, this);
             _resourceList.Clear();
-            IList<IWebElement> resourceRows = resourceTable.FindElements(By.XPath(@".//tr"));
-            for (int i = 0; i < resourceRows.Count; i++)
+            try
             {
-                if (!string.IsNullOrWhiteSpace(resourceRows[i].Text))
-                {
-                    var row = resourceRows[i].FindElements(By.XPath(@".//td"));
-                    _resourceList.Add(new Resource
-                    {
-                        Name = Helper.StripNonChar(row[0].Text),
-                        Amount = Helper.StripNonNum(row[1].Text),
-                        MaxAmount = Helper.StripNonNum(row[2].Text),
-                        PerTick = Helper.ParseRate(row[3].Text)
-                    });
-                }
-            }
-            if (_resourceList.Count == 0)
-            {
-                btnGetCatnip.Click();
-                getResourceData();
-            }
+                resourceRows = resourceTable.FindElements(By.XPath(@".//tr"));
 
-            return _resourceList;
+                for (int i = 0; i < resourceRows.Count; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(resourceRows[i].Text))
+                    {
+                        var row = resourceRows[i].FindElements(By.XPath(@".//td"));
+                        _resourceList.Add(new Resource
+                        {
+                            Name = Helper.StripNonChar(row[0].Text),
+                            Amount = Helper.StripNonNum(row[1].Text),
+                            MaxAmount = Helper.StripNonNum(row[2].Text),
+                            PerTick = Helper.ParseRate(row[3].Text)
+                        });
+                    }
+                }
+                if (_resourceList.Count == 0)
+                {
+                    btnGetCatnip.Click();
+                    getResourceData();
+                }
+
+                return _resourceList;
+            }
+            catch
+            {
+                getResourceData();
+                return _resourceList;
+            }
         }
 
         public void checkForJobAssignment()

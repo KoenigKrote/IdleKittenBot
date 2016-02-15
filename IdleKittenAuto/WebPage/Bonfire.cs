@@ -94,6 +94,7 @@ namespace IdleKittenAuto.WebPage
             }
         }
 
+        //TODO: Does not work correctly after first hut
         private void ObjectiveBuildings()
         {
             switch(Objective.Building.Name)

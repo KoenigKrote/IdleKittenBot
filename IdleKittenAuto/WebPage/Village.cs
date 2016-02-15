@@ -8,6 +8,7 @@ using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.PageObjects;
 using OpenQA.Selenium.Interactions;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace IdleKittenAuto.WebPage
 {
@@ -19,7 +20,7 @@ namespace IdleKittenAuto.WebPage
             this._driver = _driver;
             PageFactory.InitElements(_driver, this);
             getJobData();
-            assignJobs();
+            AssignJobs();
         }
 
         public List<Job> _jobList = new List<Job>();
@@ -86,88 +87,65 @@ namespace IdleKittenAuto.WebPage
             }
         }
 
-        public void assignJobs()
+        //public void assignJobs()
+        //{
+        //    AssignJobs((int)Jobs.Job["unemployed"].Count);
+        //    Resource catnip = Helper.getResource("catnip");
+        //    int i = 0;
+
+
+
+        //    //TODO: Rework this, I don't think the logic is sound.
+        //    while (catnip.PerTick.Positive == false && i < _jobList.Count)
+        //    {
+        //        if (_jobList[i].Count > 0)
+        //        {
+        //            upFarmers(i);
+        //        }
+        //        i++;
+        //        catnip = Helper.getResource("catnip");
+        //    }
+
+
+        //    while (catnip.PerTick.Positive == true && catnip.PerTick.Delta >= 9 &&
+        //        Jobs.Job["farmer"].Count > 0)
+        //    {
+        //        if (Buildings.Library.Count > 0)
+        //        {
+        //            btnDownFarmer.Click();
+        //            btnUpScholar.Click();
+        //        }
+        //        catnip = Helper.getResource("catnip");
+        //    }
+        //}
+
+
+
+        private void AssignJobs()
         {
-            assignUnemployed();
-            Resource catnip = Helper.getResource("catnip");
-            int i = 0;
-            
-
-
-            //TODO: Rework this, I don't think the logic is sound.
-            while (catnip.PerTick.Positive == false && i < _jobList.Count)
-            {
-                if (_jobList[i].Count > 0)
-                {
-                    upFarmers(i);
-                }
-                i++;
-            }
-
-
-            while (catnip.PerTick.Positive == true && catnip.PerTick.Delta >= 9 &&
-                Jobs.Job["farmer"].Count > 0)
-            {
-                if (Buildings.Library.Count > 0)
-                {
-                    btnDownFarmer.Click();
-                    btnUpScholar.Click();
-                }
-            }
-        }
-
-
-
-        //Assign unemployed kittens, based on current catnip income
-        private void assignUnemployed()
-        {
-            Dictionary<string, double> resourceGoal = new Dictionary<string, double>();
-            foreach(var item in Objective.Building.Requirements)
-            {
-                double Percentage = Helper.getResource(item.Key).Amount / item.Value;
-                resourceGoal.Add(item.Key, Percentage);
-            }
-            double totalPercentage = 0;
-            foreach(var item in resourceGoal)
-            {
-                totalPercentage += item.Value;
-            }
-
-            totalPercentage = totalPercentage / resourceGoal.Count;
-            
-            //TODO: Fix this, broken now.
-            foreach(var item in resourceGoal)
-            {
-                var key = item.Key;
-                var value = item.Value;
-                value /= totalPercentage;
-                resourceGoal[key] = value;
-            }
-
-
-
-            for (int i = 0; i < Jobs.Job["unemployed"].Count; i++)
+            Resource kittens = Helper.getResource("kittens");
+            for (int i = 0; i < kittens.Amount; i++)
             {
                 //Always check to make sure we have positive catnip before chasing objectives
                 Resource catnip = Helper.getResource("catnip");
-                if (catnip.PerTick.Positive == false || catnip.PerTick.Delta < 8)
+                if ((catnip.PerTick.Positive == false || catnip.PerTick.Delta < 8) &&
+                    Jobs.Job["farmer"].Available)
                 {
                     btnUpFarmer.Click();
+                    Thread.Sleep(250);
                     Helper.updateResources(_driver);
                     continue;
                 }
                 else
                 {
-                    Resource kittens = Helper.getResource("kittens");
-                    foreach (var item in resourceGoal)
+                    foreach (var item in Objective.ResourceGoal)
                     {
-                        int toAssign = (int)Math.Floor(Jobs.Job["unemployed"].Count * item.Value);
-                        for(int j = 0; j < toAssign; j++)
+                        int toAssign = Helper.kittensToAssign(item.Value);
+                        for (int j = 0; j < toAssign; j++)
                         {
                             jobUp(item.Key);
                         }
                     }
-
                 }
             }
         }
