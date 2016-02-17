@@ -88,7 +88,7 @@ namespace IdleKittenAuto.WebPage
                     gotoVillage(_driver);
                     btnBonfirePage.Click();
                 }
-                else if (catnip.PerTick.Positive == false || catnip.PerTick.Delta >= 11 &&
+                else if ((catnip.PerTick.Positive == false || catnip.PerTick.Delta >= 11) &&
                     Jobs.Job["farmer"].Count > 0)
                 {
                     gotoVillage(_driver);

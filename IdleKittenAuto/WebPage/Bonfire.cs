@@ -76,9 +76,9 @@ namespace IdleKittenAuto.WebPage
             _driver = new FirefoxDriver();
             _actions = new Actions(_driver);
             _driver.Navigate().GoToUrl(@"http://bloodrizer.ru/games/kittens/");
-            PageFactory.InitElements(_driver, this);
-            //loadData();
             //PageFactory.InitElements(_driver, this);
+            //loadData();
+            PageFactory.InitElements(_driver, this);
             buildBtnTable();
             while (true)
             {
@@ -97,7 +97,7 @@ namespace IdleKittenAuto.WebPage
         //TODO: Does not work correctly after first hut
         private void ObjectiveBuildings()
         {
-            switch(Objective.Building.Name)
+            switch (Objective.Building.Name)
             {
                 case "Catnip Field":
                     buildCatnipField();
@@ -111,7 +111,7 @@ namespace IdleKittenAuto.WebPage
         private void ObjectiveJobs()
         {
             btnVillagePage.Click();
-            
+
         }
 
         private void collectCatnip()
@@ -126,14 +126,22 @@ namespace IdleKittenAuto.WebPage
         //TODO: Undoubtedly there's a better way to do this
         private void buildBtnTable()
         {
-            IList<IWebElement> btnList = btnTable.FindElements(By.XPath(@".//tr/td[*]/div[*]"));
-            btnGatherCatnip = btnList.FirstOrDefault(b => b.Text.Contains("Gather"));
-            btnRefineCatnip = btnList.FirstOrDefault(b => b.Text.Contains("Refine catnip"));
-            btnBuildCatnipField = btnList.FirstOrDefault(b => b.Text.Contains("Catnip field"));
-            btnBuildHut = btnList.FirstOrDefault(b => b.Text.Contains("Hut"));
-            btnBuildPasture = btnList.FirstOrDefault(b => b.Text.Contains("Pasture"));
-            btnBuildLibrary = btnList.FirstOrDefault(b => b.Text.Contains("Library"));
-            PageFactory.InitElements(_driver, this);
+            try
+            {
+                IList<IWebElement> btnList = btnTable.FindElements(By.XPath(@".//tr/td[*]/div[*]"));
+                btnGatherCatnip = btnList.FirstOrDefault(b => b.Text.Contains("Gather"));
+                btnRefineCatnip = btnList.FirstOrDefault(b => b.Text.Contains("Refine catnip"));
+                btnBuildCatnipField = btnList.FirstOrDefault(b => b.Text.Contains("Catnip field"));
+                btnBuildHut = btnList.FirstOrDefault(b => b.Text.Contains("Hut"));
+                btnBuildPasture = btnList.FirstOrDefault(b => b.Text.Contains("Pasture"));
+                btnBuildLibrary = btnList.FirstOrDefault(b => b.Text.Contains("Library"));
+                PageFactory.InitElements(_driver, this);
+            }
+            catch
+            {
+                PageFactory.InitElements(_driver, this);
+                buildBtnTable();
+            }
         }
 
         private void buildStructures()
@@ -276,16 +284,12 @@ namespace IdleKittenAuto.WebPage
             }
 
             //If we haven't built any huts, build our first and return.
-            if (Buildings.Hut.Count == 0 && 
+            if (Buildings.Hut.Count == 0 &&
                 Buildings.Hut.Requirements["wood"] <= wood.Amount)
             {
                 btnBuildHut.Click();
                 Buildings.Hut.Requirements["wood"] *= Buildings.Hut.Ratio;
                 return;
-            }
-            else
-            {
-                refineCatnip();
             }
 
             //Make sure we have positive catnip income before building anything.
@@ -299,12 +303,12 @@ namespace IdleKittenAuto.WebPage
                     return;
                 }
             }
-            else if (Objective.Building == Buildings.Hut && 
+            else if (Objective.Building == Buildings.Hut &&
                 Buildings.Hut.Requirements["wood"] <= wood.Amount)
             {
                 buildCatnipField();
             }
-            else if(Objective.Building == Buildings.Hut &&
+            else if (Objective.Building == Buildings.Hut &&
                 Buildings.Hut.Requirements["wood"] > wood.Amount)
             {
                 refineCatnip();
@@ -325,7 +329,7 @@ namespace IdleKittenAuto.WebPage
             Resource catnip = Helper.getResource("catnip");
 
             if (catnip.PerTick.Positive == true && catnip.PerTick.Delta >= 18 &&
-                Buildings.Pasture.Count < 50 && 
+                Buildings.Pasture.Count < 50 &&
                 Buildings.Pasture.Requirements["catnip"] < catnip.Amount &&
                 Buildings.Pasture.Requirements["wood"] < wood.Amount)
             {

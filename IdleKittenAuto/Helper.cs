@@ -97,8 +97,19 @@ namespace IdleKittenAuto
             //Reduce the count by number of kittens already performing that job, and ignore farmer count to maintain catnip.
             double Amount = (getResource("kittens").Amount - Jobs.Job["farmer"].Count) - getJobCount(resourceName);
             double PercentOfKittens = Amount * Percentage;
-
             return (int)Math.Round(PercentOfKittens, 0, MidpointRounding.AwayFromZero);
+        }
+
+        public static string lowestJobCount()
+        {
+            List<KeyValuePair<string, Job>> availableJobs = new List<KeyValuePair<string,Job>>();
+            foreach(var job in Jobs.Job)
+            {
+                if (job.Value.Available)
+                    availableJobs.Add(job);
+            }
+            string lowestJob = availableJobs.Aggregate((l, h) => (l.Value.Available && h.Value.Available) && (l.Value.Count < h.Value.Count) ? l : h).Value.Resource;
+            return lowestJob;
         }
     }
 }

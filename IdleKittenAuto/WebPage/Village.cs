@@ -90,40 +90,6 @@ namespace IdleKittenAuto.WebPage
             }
         }
 
-        //public void assignJobs()
-        //{
-        //    AssignJobs((int)Jobs.Job["unemployed"].Count);
-        //    Resource catnip = Helper.getResource("catnip");
-        //    int i = 0;
-
-
-
-        //    //TODO: Rework this, I don't think the logic is sound.
-        //    while (catnip.PerTick.Positive == false && i < _jobList.Count)
-        //    {
-        //        if (_jobList[i].Count > 0)
-        //        {
-        //            upFarmers(i);
-        //        }
-        //        i++;
-        //        catnip = Helper.getResource("catnip");
-        //    }
-
-
-        //    while (catnip.PerTick.Positive == true && catnip.PerTick.Delta >= 9 &&
-        //        Jobs.Job["farmer"].Count > 0)
-        //    {
-        //        if (Buildings.Library.Count > 0)
-        //        {
-        //            btnDownFarmer.Click();
-        //            btnUpScholar.Click();
-        //        }
-        //        catnip = Helper.getResource("catnip");
-        //    }
-        //}
-
-
-
         private void AssignJobs()
         {
             Resource kittens = Helper.getResource("kittens");
@@ -144,6 +110,10 @@ namespace IdleKittenAuto.WebPage
                     foreach (var item in Objective.ResourceGoal)
                     {
                         int toAssign = Helper.kittensToAssign(item.Value, item.Key);
+                        if(toAssign < 1)
+                        {
+                            jobUp(Helper.lowestJobCount());
+                        }
                         for (int j = 0; j < toAssign; j++)
                         {
                             jobUp(item.Key);
